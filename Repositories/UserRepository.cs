@@ -1,6 +1,8 @@
-﻿namespace DebtTrack.Repositories;
+﻿using DebtTrack.Interfaces;
 
-public class UserRepository
+namespace DebtTrack.Repositories;
+
+public class UserRepository : IUserRepository
 {
     
 }

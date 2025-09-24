@@ -1,4 +1,6 @@
-﻿namespace DebtTrack.Controllers;
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace DebtTrack.Controllers;
 
 [ApiController]
 [Route("[controller]")]

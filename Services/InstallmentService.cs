@@ -1,6 +1,8 @@
-﻿namespace DebtTrack.Services;
+﻿using DebtTrack.Interfaces;
 
-public class InstallmentService
+namespace DebtTrack.Services;
+
+public class InstallmentService : IInstallmentService
 {
     
 }
