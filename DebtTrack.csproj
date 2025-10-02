@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Dtos\Debt\" />
     <Folder Include="Dtos\Installment\" />
     <Folder Include="Dtos\Payment\" />
   </ItemGroup>

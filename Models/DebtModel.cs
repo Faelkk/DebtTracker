@@ -18,10 +18,10 @@ public class DebtModel
     public decimal TotalAmount { get; set; }
 
     [DynamoDBProperty]
-    public int? Installments { get; set; }
+    public int Installments { get; set; }
 
     [DynamoDBProperty]
-    public decimal? InstallmentValue { get; set; }
+    public decimal InstallmentValue { get; set; }
 
     [DynamoDBProperty]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
