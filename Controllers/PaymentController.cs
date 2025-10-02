@@ -1,6 +1,55 @@
-﻿namespace DebtTrack.Controllers;
+﻿using DebtTrack.Dtos.Payment;
+using DebtTrack.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
-public class PaymentController
+namespace DebtTrack.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class PaymentController : ControllerBase
 {
-    
+    private readonly IPaymentService _paymentService;
+
+    public PaymentController(IPaymentService paymentService)
+    {
+        _paymentService = paymentService;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Get()
+    {
+        var payments = await _paymentService.GetAllAsync();
+        return Ok(payments);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(string id)
+    {
+        var payment = await _paymentService.GetByIdAsync(id);
+        if (payment == null) return NotFound("Payment not found");
+        return Ok(payment);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Post([FromBody] PaymentCreateDto dto)
+    {
+        var created = await _paymentService.CreateAsync(dto);
+        return CreatedAtAction(nameof(GetById), new { id = created.PaymentId }, created);
+    }
+
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> Patch(string id, [FromBody] PaymentUpdateDto dto)
+    {
+        var updated = await _paymentService.UpdateAsync(id, dto);
+        if (updated == null) return NotFound("Payment not found");
+        return Ok(updated);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var deleted = await _paymentService.Delete(id);
+        if (!deleted) return NotFound("Payment not found");
+        return NoContent();
+    }
 }
