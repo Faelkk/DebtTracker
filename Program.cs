@@ -4,6 +4,7 @@ using DebtTrack.Interfaces;
 using DebtTrack.Repositories;
 using DebtTrack.Services;
 using DebtTrack.Settings;
+using DebtTrack.Setup;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -19,6 +20,8 @@ builder.Services.AddSingleton<IAmazonDynamoDB>(sp =>
         ServiceURL = dynamoDbSettings.ServiceURL
     });
 });
+
+builder.Services.AddScoped<DynamoDbSetup>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDebtService, DebtService>();
@@ -54,12 +57,18 @@ builder.Services.AddAuthentication(options =>
     });
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
+using (var scope = app.Services.CreateScope())
+{
+    var setup = scope.ServiceProvider.GetRequiredService<DynamoDbSetup>();
+    await setup.CreateTablesAsync(); 
+}
+
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();

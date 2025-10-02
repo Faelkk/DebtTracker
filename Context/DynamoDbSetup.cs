@@ -74,7 +74,6 @@ namespace DebtTrack.Setup
             {
                 try
                 {
-                    // Verifica se já existe antes de criar
                     var existing = await _client.ListTablesAsync();
                     if (!existing.TableNames.Contains(table.TableName))
                     {
