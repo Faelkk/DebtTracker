@@ -7,10 +7,14 @@ namespace DebtTrack.Services;
 public class InstallmentService : IInstallmentService
 {
     private readonly IInstallmentRepository _repository;
+    private readonly IPaymentRepository _paymentRepository;
 
-    public InstallmentService(IInstallmentRepository repository)
+    public InstallmentService(
+        IInstallmentRepository repository,
+        IPaymentRepository paymentRepository)
     {
         _repository = repository;
+        _paymentRepository = paymentRepository;
     }
 
     public async Task<IEnumerable<InstallmentDto>> GetAllAsync()
@@ -73,8 +77,7 @@ public class InstallmentService : IInstallmentService
     {
         var existing = await _repository.GetByIdAsync(id);
         if (existing == null) return null;
-
-        existing.DueDate = dto.DueDate;
+        
         existing.Amount = dto.Amount;
         existing.PaidAmount = dto.PaidAmount;
         existing.IsPaid = dto.IsPaid;
@@ -95,6 +98,18 @@ public class InstallmentService : IInstallmentService
 
     public async Task<bool> DeleteAsync(string id)
     {
+        var existing = await _repository.GetByIdAsync(id);
+        if (existing == null) return false;
+        
+        var allPayments = await _paymentRepository.GetAllAsync();
+        var paymentsToDelete = allPayments.Where(p => p.InstallmentId == id);
+        
+        foreach (var payment in paymentsToDelete)
+        {
+            await _paymentRepository.DeleteAsync(payment.PaymentId);
+        }
+
+
         return await _repository.DeleteAsync(id);
     }
 }

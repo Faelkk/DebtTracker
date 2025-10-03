@@ -7,9 +7,13 @@ public class DebtModel
 {
     [DynamoDBHashKey] 
     public string DebtId { get; set; } = Guid.NewGuid().ToString();
+    
+    [DynamoDBProperty]
+    public string DebtorId { get; set; }
+
 
     [DynamoDBProperty]
-    public string UserId { get; set; }
+    public string CreditorId { get; set; }
 
     [DynamoDBProperty]
     public string Description { get; set; }
@@ -29,6 +33,13 @@ public class DebtModel
     [DynamoDBProperty]
     public DateTime DueDate { get; set; }
 
+
+    [DynamoDBProperty]
+    public bool DebtorConfirmedPayment { get; set; } = false;
+
+    [DynamoDBProperty]
+    public bool CreditorConfirmedReceipt { get; set; } = false;
+    
     [DynamoDBProperty]
     public bool IsPaid { get; set; } = false;
 }

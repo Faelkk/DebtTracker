@@ -1,0 +1,13 @@
+﻿services:
+  debttrack:
+    image: debttrack
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+  debttrack-1:
+    image: debttrack-1
+    build:
+      context: .
+      dockerfile: Dockerfile
+
