@@ -1,15 +1,15 @@
-﻿using Amazon.Lambda.AspNetCoreServer;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Amazon.DynamoDBv2;
+﻿using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using Amazon.Lambda.AspNetCoreServer;
+using Amazon.Runtime;
 using DebtTrack.Interfaces;
 using DebtTrack.Repositories;
 using DebtTrack.Services;
 using DebtTrack.Settings;
 using DebtTrack.Setup;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace DebtTrack
 {
@@ -22,18 +22,28 @@ namespace DebtTrack
                 var configuration = context.Configuration;
 
                 var dynamoDbSettings = configuration.GetSection("DynamoDB").Get<DynamoDbSettings>();
-                services.AddSingleton(dynamoDbSettings);
+                
+                string accessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID") 
+                                   ?? configuration["AWS:AccessKeyId"];
+                string secretKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY") 
+                                   ?? configuration["AWS:SecretAccessKey"];
+
+                var credentials = new BasicAWSCredentials(accessKey, secretKey);
+
                 services.AddSingleton<IAmazonDynamoDB>(sp =>
-                    new AmazonDynamoDBClient(new AmazonDynamoDBConfig
+                    new AmazonDynamoDBClient(credentials, new AmazonDynamoDBConfig
                     {
                         ServiceURL = dynamoDbSettings.ServiceURL
                     }));
+
+                services.AddScoped<IDynamoDBContext>(sp =>
+                    new DynamoDBContext(sp.GetRequiredService<IAmazonDynamoDB>()));
 
                 services.AddScoped<DynamoDbSetup>();
                 services.AddScoped<IUserService, UserService>();
                 services.AddScoped<IDebtService, DebtService>();
                 services.AddScoped<IPaymentService, PaymentService>();
-                services.AddScoped<InstallmentService, InstallmentService>();
+                services.AddScoped<IInstallmentService, InstallmentService>();
                 services.AddScoped<IJwtService, JwtService>();
                 services.AddScoped<IPasswordHasher, PasswordHasher>();
                 services.AddScoped<IUserRepository, UserRepository>();
@@ -42,12 +52,12 @@ namespace DebtTrack
                 services.AddScoped<IInstallmentRepository, InstallmentRepository>();
 
                 var jwtSettings = configuration.GetSection("Jwt").Get<JwtSettings>();
-
                 services.AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                }).AddJwtBearer(options =>
+                })
+                .AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -69,10 +79,7 @@ namespace DebtTrack
                 app.UseRouting();
                 app.UseAuthentication();
                 app.UseAuthorization();
-                app.UseEndpoints(endpoints =>
-                {
-                    endpoints.MapControllers();
-                });
+                app.UseEndpoints(endpoints => endpoints.MapControllers());
             });
         }
     }

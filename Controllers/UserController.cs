@@ -46,7 +46,7 @@ public class UserController : ControllerBase
         }
     }
 
-    [HttpPost("{/create}")]
+    [HttpPost("{create}")]
     public IActionResult Signup([FromBody] UserCreateDto userCreateDto)
     {
         try
@@ -60,7 +60,7 @@ public class UserController : ControllerBase
         }
     }
     
-    [HttpPost("{/login}")]
+    [HttpPost("{login}")]
     public IActionResult Signin([FromBody] UserLoginDto userLoginDto)
     {
         try

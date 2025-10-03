@@ -17,6 +17,8 @@ services:
     environment:
       - DOTNET_ENVIRONMENT=Development
       - DynamoDB__ServiceURL=http://dynamodb-local:8000
+      - AWS_ACCESS_KEY_ID=fakeMyKeyId
+      - AWS_SECRET_ACCESS_KEY=fakeSecretAccessKey
     depends_on:
       - dynamodb-local
     ports:
