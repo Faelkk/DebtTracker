@@ -16,7 +16,7 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
-    
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult>  Get()
     {
@@ -33,7 +33,7 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpGet("{id}")]
-    public async Task<IActionResult>  Get(int id)
+    public async Task<IActionResult>  Get(Guid id)
     {
         try
         {
@@ -77,13 +77,13 @@ public class UserController : ControllerBase
             return StatusCode(500, ex.Message);
         }
     }
-    
+    [Authorize]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(Guid id)
     {
         try
         {
-            var deleted = await _userService.Delete(id); 
+            var deleted = await _userService.Delete(id);
 
             if (!deleted)
                 return NotFound("Usuário não encontrado");
@@ -95,5 +95,6 @@ public class UserController : ControllerBase
             return StatusCode(500, ex.Message);
         }
     }
+
 
 }

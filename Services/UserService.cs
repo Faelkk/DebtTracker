@@ -29,7 +29,7 @@ public class UserService : IUserService
            Email = u.Email
        });
    }
-   public async Task<UserDto> GetById(int id)
+   public async Task<UserDto> GetById(Guid id)
    {
        var user = await _userRepository.GetByIdAsync(id.ToString());
        if (user == null)
@@ -83,7 +83,7 @@ public class UserService : IUserService
         return new UserTokenDto { Token = token };
     }
     
-   public async Task<bool> Delete(int id)
+   public async Task<bool> Delete(Guid id)
    {
    var user = await _userRepository.GetByIdAsync(id.ToString());
 
