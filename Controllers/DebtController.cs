@@ -1,5 +1,6 @@
 ﻿using DebtTrack.Dtos.Debt;
 using DebtTrack.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DebtTrack.Controllers;
@@ -15,6 +16,8 @@ public class DebtController : ControllerBase
         _debtService = debtService;
     }
 
+    
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> Get()
     {
@@ -29,6 +32,7 @@ public class DebtController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {

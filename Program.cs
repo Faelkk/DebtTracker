@@ -33,7 +33,7 @@ builder.Services.AddSingleton<IAmazonDynamoDB>(sp =>
 builder.Services.AddScoped<IDynamoDBContext>(sp =>
     new DynamoDBContext(sp.GetRequiredService<IAmazonDynamoDB>()));
 
-// Setup e services
+
 builder.Services.AddScoped<DynamoDbSetup>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDebtService, DebtService>();
@@ -46,7 +46,6 @@ builder.Services.AddScoped<IDebtRepository, DebtRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IInstallmentRepository, InstallmentRepository>();
 
-// JWT
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
 builder.Services.AddAuthentication(options =>
 {
@@ -72,7 +71,6 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Criação das tabelas DynamoDB
 using (var scope = app.Services.CreateScope())
 {
     var setup = scope.ServiceProvider.GetRequiredService<DynamoDbSetup>();

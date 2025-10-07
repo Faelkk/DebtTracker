@@ -1,5 +1,6 @@
 ﻿using DebtTrack.Dtos.User;
 using DebtTrack.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DebtTrack.Controllers;
@@ -15,6 +16,8 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
+    
+    [Authorize]
     [HttpGet]
     public IActionResult Get()
     {
@@ -29,6 +32,7 @@ public class UserController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public IActionResult Get(int id)
     {
@@ -60,6 +64,7 @@ public class UserController : ControllerBase
         }
     }
     
+    
     [HttpPost("{login}")]
     public IActionResult Signin([FromBody] UserLoginDto userLoginDto)
     {
@@ -74,7 +79,7 @@ public class UserController : ControllerBase
         }
     }
 
- 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

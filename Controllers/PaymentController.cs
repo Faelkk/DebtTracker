@@ -1,5 +1,6 @@
 ﻿using DebtTrack.Dtos.Payment;
 using DebtTrack.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DebtTrack.Controllers;
@@ -14,7 +15,8 @@ public class PaymentController : ControllerBase
     {
         _paymentService = paymentService;
     }
-
+    
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> Get()
     {
@@ -22,6 +24,8 @@ public class PaymentController : ControllerBase
         return Ok(payments);
     }
 
+    
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
@@ -30,6 +34,7 @@ public class PaymentController : ControllerBase
         return Ok(payment);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] PaymentCreateDto dto)
     {
@@ -37,6 +42,8 @@ public class PaymentController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = created.PaymentId }, created);
     }
 
+    
+    [Authorize]
     [HttpPatch("{id}")]
     public async Task<IActionResult> Patch(string id, [FromBody] PaymentUpdateDto dto)
     {
@@ -45,6 +52,8 @@ public class PaymentController : ControllerBase
         return Ok(updated);
     }
 
+    
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(string id)
     {
