@@ -17,13 +17,12 @@ public class UserController : ControllerBase
     }
 
     
-    [Authorize]
     [HttpGet]
-    public IActionResult Get()
+    public async Task<IActionResult>  Get()
     {
         try
         {
-            var users = _userService.GetAll();
+            var users = await _userService.GetAll();
             return Ok(users);
         }
         catch (Exception ex)
@@ -34,11 +33,11 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpGet("{id}")]
-    public IActionResult Get(int id)
+    public async Task<IActionResult>  Get(int id)
     {
         try
         {
-            var user = _userService.GetById(id);
+            var user = await _userService.GetById(id);
             if (user == null)
                 return NotFound();
 
@@ -50,13 +49,13 @@ public class UserController : ControllerBase
         }
     }
 
-    [HttpPost("{create}")]
-    public IActionResult Signup([FromBody] UserCreateDto userCreateDto)
+    [HttpPost("create")]
+    public async Task<IActionResult>  Signup([FromBody] UserCreateDto userCreateDto)
     {
         try
         {
-            var createdUser = _userService.Create(userCreateDto);
-            return CreatedAtAction(nameof(Get), new { id = createdUser.Id }, createdUser);
+            var createdUser = await _userService.Create(userCreateDto);
+            return Ok(new { token = createdUser.Token });
         }
         catch (Exception ex)
         {
@@ -65,21 +64,20 @@ public class UserController : ControllerBase
     }
     
     
-    [HttpPost("{login}")]
-    public IActionResult Signin([FromBody] UserLoginDto userLoginDto)
+    [HttpPost("login")]
+    public  async Task<IActionResult> Signin([FromBody] UserLoginDto userLoginDto)
     {
         try
         {
-            var createdUser = _userService.Login(userLoginDto);
-            return CreatedAtAction(nameof(Get), new { id = createdUser.Id }, createdUser);
+            var createdUser = await _userService.Login(userLoginDto);
+            return Ok(new { token = createdUser.Token });
         }
         catch (Exception ex)
         {
             return StatusCode(500, ex.Message);
         }
     }
-
-    [Authorize]
+    
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

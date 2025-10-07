@@ -9,12 +9,11 @@ using DebtTrack.Settings;
 using DebtTrack.Setup;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 var dynamoDbSettings = builder.Configuration.GetSection("DynamoDB").Get<DynamoDbSettings>();
-
 
 string accessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID") 
                    ?? builder.Configuration["AWS:AccessKeyId"];
@@ -23,16 +22,16 @@ string secretKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY")
 
 var credentials = new BasicAWSCredentials(accessKey, secretKey);
 
-
 builder.Services.AddSingleton<IAmazonDynamoDB>(sp =>
     new AmazonDynamoDBClient(credentials, new AmazonDynamoDBConfig
     {
         ServiceURL = dynamoDbSettings.ServiceURL
-    }));
+    })
+);
 
 builder.Services.AddScoped<IDynamoDBContext>(sp =>
-    new DynamoDBContext(sp.GetRequiredService<IAmazonDynamoDB>()));
-
+    new DynamoDBContext(sp.GetRequiredService<IAmazonDynamoDB>())
+);
 
 builder.Services.AddScoped<DynamoDbSetup>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -46,7 +45,10 @@ builder.Services.AddScoped<IDebtRepository, DebtRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IInstallmentRepository, InstallmentRepository>();
 
+
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -66,10 +68,15 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+var port = builder.Configuration["APIPORT"] ?? "5010";
+builder.WebHost.UseUrls($"http://*:{port}");
+
 var app = builder.Build();
+
 
 using (var scope = app.Services.CreateScope())
 {
@@ -77,13 +84,11 @@ using (var scope = app.Services.CreateScope())
     await setup.CreateTablesAsync();
 }
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
 
+app.MapOpenApi();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
 app.Run();

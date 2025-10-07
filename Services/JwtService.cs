@@ -13,10 +13,11 @@ public class JwtService : IJwtService
 {
     private readonly JwtSettings _settings;
 
-    public JwtService(IOptions<JwtSettings> options)
-    {
-        _settings = options.Value;
-    }
+  public JwtService(IOptions<JwtSettings> options)
+{
+    _settings = options.Value ?? throw new ArgumentNullException(nameof(options.Value));
+}
+
 
     public string GenerateToken(UserModel user)
     {

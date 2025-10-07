@@ -1,5 +1,4 @@
 ﻿
-
 services:
   dynamodb-local:
     image: amazon/dynamodb-local
@@ -22,4 +21,4 @@ services:
     depends_on:
       - dynamodb-local
     ports:
-      - "5000:80"
+      - "5010:5010"
