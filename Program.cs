@@ -10,6 +10,8 @@ using DebtTrack.Setup;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,7 +72,32 @@ builder.Services.AddAuthentication(options =>
 
 
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer((document, context, cancellationToken) =>
+    {
+        document.Info = new OpenApiInfo
+        {
+            Title = "DebtTrack API",
+            Version = "v1",
+            Description = "API de gerenciamento de dividas e empréstimos, permitindo parcelamanto,pagamentos,cadastro e listagem de dividas",
+            Contact = new OpenApiContact
+            {
+                Name = "Rafael Achtenberg",
+                Email = "rafael@example.com",
+                Url = new Uri("https://github.com/Faelkk/NewsLetter")
+            },
+            License = new OpenApiLicense
+            {
+                Name = "MIT",
+                Url = new Uri("https://opensource.org/licenses/MIT")
+            }
+        };
+
+        return Task.CompletedTask;
+    });
+});
+
 
 var port = builder.Configuration["APIPORT"] ?? "5010";
 builder.WebHost.UseUrls($"http://*:{port}");
@@ -86,6 +113,12 @@ using (var scope = app.Services.CreateScope())
 
 
 app.MapOpenApi();
+app.MapScalarApiReference(options =>
+{
+    options.WithTitle("Newsletter API")
+        .WithTheme(ScalarTheme.Mars);
+});
+
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
