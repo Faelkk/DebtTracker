@@ -18,8 +18,7 @@ public class DebtCreateDto
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Installments deve ser pelo menos 1")]
         public int Installments { get; set; }
-
-        public decimal InstallmentValue { get; set; }
+        
 
         [Required]
         public DateTime DueDate { get; set; }

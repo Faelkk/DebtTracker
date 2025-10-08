@@ -43,15 +43,6 @@ public class PaymentController : ControllerBase
     }
 
     
-    [Authorize]
-    [HttpPatch("{id}")]
-    public async Task<IActionResult> Patch(string id, [FromBody] PaymentUpdateDto dto)
-    {
-        var updated = await _paymentService.UpdateAsync(id, dto);
-        if (updated == null) return NotFound("Payment not found");
-        return Ok(updated);
-    }
-
     
     [Authorize]
     [HttpDelete("{id}")]

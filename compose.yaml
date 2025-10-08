@@ -1,11 +1,12 @@
-﻿
-services:
+﻿services:
   dynamodb-local:
     image: amazon/dynamodb-local
     container_name: dynamodb-local
     ports:
       - "8000:8000"
-    command: "-jar DynamoDBLocal.jar -inMemory -sharedDb"
+    command: "-jar DynamoDBLocal.jar -sharedDb"
+    volumes:
+      - dynamodb_data:/home/dynamodblocal/data
     restart: unless-stopped
 
   debttrack:
@@ -22,3 +23,6 @@ services:
       - dynamodb-local
     ports:
       - "5010:5010"
+
+volumes:
+  dynamodb_data:

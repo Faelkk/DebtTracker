@@ -29,15 +29,7 @@ namespace DebtTrack.Repositories
             await _context.SaveAsync(payment);
             return payment;
         }
-
-        public async Task<PaymentModel?> UpdateAsync(PaymentModel payment)
-        {
-            var existing = await _context.LoadAsync<PaymentModel>(payment.PaymentId);
-            if (existing == null) return null;
-
-            await _context.SaveAsync(payment);
-            return payment;
-        }
+        
 
         public async Task<bool> DeleteAsync(string id)
         {

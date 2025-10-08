@@ -7,6 +7,5 @@ public interface IPaymentService
     Task<IEnumerable<PaymentDto>> GetAllAsync();
     Task<PaymentDto?> GetByIdAsync(string id);
     Task<PaymentDto> CreateAsync(PaymentCreateDto dto);
-    Task<PaymentDto?> UpdateAsync(string id, PaymentUpdateDto dto);
     Task<bool> Delete(string id);
 }

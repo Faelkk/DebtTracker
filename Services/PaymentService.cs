@@ -9,10 +9,11 @@ using DebtTrack.Models;
 public class PaymentService : IPaymentService
     {
         private readonly IPaymentRepository _paymentRepository;
-
-        public PaymentService(IPaymentRepository paymentRepository)
+        private readonly IInstallmentRepository _installmentRepository;
+        public PaymentService(IPaymentRepository paymentRepository,IInstallmentRepository installmentRepository)
         {
             _paymentRepository = paymentRepository;
+            _installmentRepository = installmentRepository;
         }
 
         public async Task<IEnumerable<PaymentDto>> GetAllAsync()
@@ -54,6 +55,15 @@ public class PaymentService : IPaymentService
 
             var created = await _paymentRepository.CreateAsync(model);
 
+
+            var installment = await _installmentRepository.GetByIdAsync(dto.InstallmentId);
+            if (installment != null)
+            {
+                installment.PaidAmount += dto.Amount;
+                installment.IsPaid = installment.PaidAmount >= installment.Amount;
+                await _installmentRepository.UpdateAsync(installment);
+            }
+
             return new PaymentDto
             {
                 PaymentId = created.PaymentId,
@@ -64,26 +74,7 @@ public class PaymentService : IPaymentService
             };
         }
 
-        public async Task<PaymentDto?> UpdateAsync(string id, PaymentUpdateDto dto)
-        {
-            var existing = await _paymentRepository.GetByIdAsync(id);
-            if (existing == null) return null;
-
-            if (dto.Amount.HasValue) existing.Amount = dto.Amount.Value;
-            if (dto.PaidAt.HasValue) existing.PaidAt = dto.PaidAt.Value;
-
-            var updated = await _paymentRepository.UpdateAsync(existing);
-            if (updated == null) return null;
-
-            return new PaymentDto
-            {
-                PaymentId = updated.PaymentId,
-                DebtId = updated.DebtId,
-                InstallmentId = updated.InstallmentId,
-                Amount = updated.Amount,
-                PaidAt = updated.PaidAt
-            };
-        }
+        
 
         public async Task<bool> Delete(string id)
         {
