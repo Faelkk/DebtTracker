@@ -16,7 +16,6 @@ public class UserService : IUserService
         _passwordHasher = passwordHasher;
         _jwtService = jwtService;
     }
-
    public async Task<IEnumerable<UserDto>> GetAll()
    {
        var users = await _userRepository.GetAllAsync();
@@ -29,6 +28,10 @@ public class UserService : IUserService
            Email = u.Email
        });
    }
+   
+   
+   
+   
    public async Task<UserDto> GetById(Guid id)
    {
        var user = await _userRepository.GetByIdAsync(id.ToString());

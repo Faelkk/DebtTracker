@@ -17,8 +17,6 @@ public class JwtService : IJwtService
 {
     _settings = options.Value ?? throw new ArgumentNullException(nameof(options.Value));
 }
-
-
     public string GenerateToken(UserModel user)
     {
         var claims = new[]
@@ -40,4 +38,4 @@ public class JwtService : IJwtService
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-}
+} 

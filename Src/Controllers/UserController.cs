@@ -1,4 +1,5 @@
-﻿using DebtTrack.Dtos.User;
+﻿using System.Security.Claims;
+using DebtTrack.Dtos.User;
 using DebtTrack.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,27 @@ public class UserController : ControllerBase
     {
         _userService = userService;
     }
+    
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<ActionResult> Me()
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized("Token inválido ou usuário não encontrado.");
+
+            var user = await _userService.GetById(Guid.Parse(userId));
+
+            return Ok(user);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
     [Authorize]
     [HttpGet]
     public async Task<IActionResult>  Get()
