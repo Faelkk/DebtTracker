@@ -17,20 +17,22 @@ public class InstallmentService : IInstallmentService
         _paymentRepository = paymentRepository;
     }
 
-    public async Task<IEnumerable<InstallmentDto>> GetAllAsync()
+    public async Task<IEnumerable<InstallmentDto>> GetAllAsync(string? debtId)
+{
+    var models = await _repository.GetAllAsync(debtId);
+
+    return models.Select(m => new InstallmentDto
     {
-        var models = await _repository.GetAllAsync();
-        return models.Select(m => new InstallmentDto
-        {
-            InstallmentId = m.InstallmentId,
-            DebtId = m.DebtId,
-            Number = m.Number,
-            DueDate = m.DueDate,
-            Amount = m.Amount,
-            PaidAmount = m.PaidAmount,
-            IsPaid = m.IsPaid
-        });
-    }
+        InstallmentId = m.InstallmentId,
+        DebtId = m.DebtId,
+        Number = m.Number,
+        DueDate = m.DueDate,
+        Amount = m.Amount,
+        PaidAmount = m.PaidAmount,
+        IsPaid = m.IsPaid
+    });
+}
+
 
     public async Task<InstallmentDto?> GetByIdAsync(string id)
     {

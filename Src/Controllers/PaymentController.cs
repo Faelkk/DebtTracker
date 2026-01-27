@@ -18,11 +18,15 @@ public class PaymentController : ControllerBase
     
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> Get()
-    {
-        var payments = await _paymentService.GetAllAsync();
-        return Ok(payments);
-    }
+    public async Task<IActionResult> Get(
+    [FromQuery] string? debtId,
+    [FromQuery] string? installmentId
+)
+{
+    var payments = await _paymentService.GetAllAsync(debtId, installmentId);
+    return Ok(payments);
+}
+
 
     
     [Authorize]

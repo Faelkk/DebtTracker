@@ -1,4 +1,5 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
 using DebtTrack.Interfaces;
 using DebtTrack.Models;
 
@@ -13,10 +14,24 @@ public class InstallmentRepository : IInstallmentRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<InstallmentModel>> GetAllAsync()
+    public async Task<IEnumerable<InstallmentModel>> GetAllAsync(string? debtId)
+{
+    var conditions = new List<ScanCondition>();
+
+    if (!string.IsNullOrEmpty(debtId))
     {
-        return await _context.ScanAsync<InstallmentModel>(new List<ScanCondition>()).GetRemainingAsync();
+        conditions.Add(new ScanCondition(
+            nameof(InstallmentModel.DebtId),
+            ScanOperator.Equal,
+            debtId
+        ));
     }
+
+    return await _context
+        .ScanAsync<InstallmentModel>(conditions)
+        .GetRemainingAsync();
+}
+
 
     public async Task<InstallmentModel?> GetByIdAsync(string id)
     {

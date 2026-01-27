@@ -9,11 +9,10 @@ public class DebtModel
     public string DebtId { get; set; } = Guid.NewGuid().ToString();
     
     [DynamoDBProperty]
-    public string DebtorId { get; set; }
-
+    public bool IsMyDebt { get; set; }
 
     [DynamoDBProperty]
-    public string CreditorId { get; set; }
+    public string InvolvedPartyName { get; set; }
 
     [DynamoDBProperty]
     public string Description { get; set; }
@@ -33,12 +32,6 @@ public class DebtModel
     [DynamoDBProperty]
     public DateTime DueDate { get; set; }
 
-
-    [DynamoDBProperty]
-    public bool DebtorConfirmedPayment { get; set; } = false;
-
-    [DynamoDBProperty]
-    public bool CreditorConfirmedReceipt { get; set; } = false;
     
     [DynamoDBProperty]
     public bool IsPaid { get; set; } = false;

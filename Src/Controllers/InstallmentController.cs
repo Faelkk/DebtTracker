@@ -16,20 +16,21 @@ public class InstallmentController : ControllerBase
         this._installmentService = installmentService;
     }
 
-    [Authorize]
-    [HttpGet]
-    public async Task<IActionResult> Get()
+   [Authorize]
+[HttpGet]
+public async Task<IActionResult> Get([FromQuery] string? debtId)
+{
+    try
     {
-        try
-        {
-            var installments = await _installmentService.GetAllAsync();
-            return Ok(installments);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
+        var installments = await _installmentService.GetAllAsync(debtId);
+        return Ok(installments);
     }
+    catch (Exception ex)
+    {
+        return StatusCode(500, ex.Message);
+    }
+}
+
 
     
     [Authorize]
