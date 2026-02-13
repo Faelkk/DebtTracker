@@ -5,14 +5,17 @@ namespace DebtTrack.Models;
 [DynamoDBTable("Installments")]
 public class InstallmentModel
 {
-    [DynamoDBHashKey] 
+    [DynamoDBHashKey]
+    public string UserId { get; set; } = default!;
+
+    [DynamoDBRangeKey]
     public string InstallmentId { get; set; } = Guid.NewGuid().ToString();
 
     [DynamoDBProperty]
-    public string DebtId { get; set; }
+    public string DebtId { get; set; } = default!;
 
     [DynamoDBProperty]
-    public int Number { get; set; } 
+    public int Number { get; set; }
 
     [DynamoDBProperty]
     public DateTime DueDate { get; set; }

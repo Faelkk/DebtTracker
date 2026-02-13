@@ -17,5 +17,9 @@ namespace DebtTrack.Dtos.Installment
         [Required]
         [Range(0.01, double.MaxValue, ErrorMessage = "Amount deve ser maior que 0")]
         public decimal Amount { get; set; }
+
+        [Required(ErrorMessage = "Informe o ID do usuário")]
+        [StringLength(100, ErrorMessage = "O ID do usuário pode ter no máximo 100 caracteres")]
+        public string UserId { get; set; }
     }
 }

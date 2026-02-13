@@ -22,4 +22,6 @@ public class DebtCreateDto
 
     [Required(ErrorMessage = "DueDate é obrigatória")]
     public DateTime DueDate { get; set; }
+
+
 }

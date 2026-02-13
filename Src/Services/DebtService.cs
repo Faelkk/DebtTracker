@@ -13,7 +13,7 @@ public class DebtService : IDebtService
     public DebtService(
         IDebtRepository debtRepository,
         IInstallmentRepository installmentRepository,
-        IPaymentRepository paymentRepository,IUserRepository userRepository)
+        IPaymentRepository paymentRepository, IUserRepository userRepository)
     {
         _debtRepository = debtRepository;
         _installmentRepository = installmentRepository;
@@ -21,9 +21,9 @@ public class DebtService : IDebtService
         _userRepository = userRepository;
     }
 
-    public async Task<IEnumerable<DebtDto>> GetAllAsync()
+    public async Task<IEnumerable<DebtDto>> GetAllAsync(string userId)
 {
-    var debts = await _debtRepository.GetAllAsync();
+    var debts = await _debtRepository.GetAllAsync(userId);
 
     return debts.Select(d => new DebtDto
     {
@@ -36,130 +36,148 @@ public class DebtService : IDebtService
         InstallmentValue = d.InstallmentValue,
         CreatedAt = d.CreatedAt,
         DueDate = d.DueDate,
-        IsPaid = d.IsPaid
+        IsPaid = d.IsPaid,
+        UserId = d.UserId
     });
 }
 
 
-    public async Task<DebtDto?> GetByIdAsync(string id)
-{
-    var debt = await _debtRepository.GetByIdAsync(id);
-    if (debt == null) return null;
 
-    return new DebtDto
+    public async Task<DebtDto?> GetByIdAsync(string id,string? userId)
     {
-        DebtId = debt.DebtId,
-        IsMyDebt = debt.IsMyDebt,
-        InvolvedPartyName = debt.InvolvedPartyName,
-        Description = debt.Description,
-        TotalAmount = debt.TotalAmount,
-        Installments = debt.Installments,
-        InstallmentValue = debt.InstallmentValue,
-        CreatedAt = debt.CreatedAt,
-        DueDate = debt.DueDate,
-        IsPaid = debt.IsPaid
-    };
-}
+        var debt = await _debtRepository.GetByIdAsync(id,userId);
+        if (debt == null) return null;
 
-
-    public async Task<DebtDto> CreateAsync(DebtCreateDto dto)
-{
-    var installmentValue = dto.TotalAmount / dto.Installments;
-
-    var model = new DebtModel
-    {
-        IsMyDebt = dto.IsMyDebt,
-        InvolvedPartyName = dto.InvolvedPartyName,
-        Description = dto.Description,
-        TotalAmount = dto.TotalAmount,
-        Installments = dto.Installments,
-        InstallmentValue = installmentValue,
-        DueDate = dto.DueDate
-    };
-
-    var created = await _debtRepository.CreateAsync(model);
-
-    for (int i = 1; i <= created.Installments; i++)
-    {
-        var installment = new InstallmentModel
+        return new DebtDto
         {
-            DebtId = created.DebtId,
-            Number = i,
-            Amount = created.InstallmentValue,
-            DueDate = created.DueDate.AddMonths(i - 1),
+            DebtId = debt.DebtId,
+            IsMyDebt = debt.IsMyDebt,
+            InvolvedPartyName = debt.InvolvedPartyName,
+            Description = debt.Description,
+            TotalAmount = debt.TotalAmount,
+            Installments = debt.Installments,
+            InstallmentValue = debt.InstallmentValue,
+            CreatedAt = debt.CreatedAt,
+            DueDate = debt.DueDate,
+            IsPaid = debt.IsPaid,
+            UserId = debt.UserId
+        };
+    }
+
+
+    public async Task<DebtDto> CreateAsync(DebtCreateDto dto, string userId)
+    {
+        var installmentValue = dto.TotalAmount / dto.Installments;
+
+        var model = new DebtModel
+        {
+            IsMyDebt = dto.IsMyDebt,
+            InvolvedPartyName = dto.InvolvedPartyName,
+            Description = dto.Description,
+            TotalAmount = dto.TotalAmount,
+            Installments = dto.Installments,
+            InstallmentValue = installmentValue,
+            DueDate = dto.DueDate,
+            UserId = userId
+
         };
 
-        await _installmentRepository.CreateAsync(installment);
+        var created = await _debtRepository.CreateAsync(model);
+
+        Console.WriteLine($"Debt created with ID: {created.DebtId}");
+
+        var installments = GenerateInstallments(created);
+
+        await _installmentRepository.CreateManyAsync(installments);
+
+        Console.WriteLine($"Generated {installments.Count} installments for Debt ID: {created.DebtId}");
+
+
+        return new DebtDto
+        {
+            DebtId = created.DebtId,
+            IsMyDebt = created.IsMyDebt,
+            InvolvedPartyName = created.InvolvedPartyName,
+            Description = created.Description,
+            TotalAmount = created.TotalAmount,
+            Installments = created.Installments,
+            InstallmentValue = created.InstallmentValue,
+            CreatedAt = created.CreatedAt,
+            DueDate = created.DueDate,
+            IsPaid = created.IsPaid,
+            UserId = created.UserId
+        };
     }
 
-    return new DebtDto
+
+    public async Task<DebtDto?> UpdateAsync(string id, string userId, DebtUpdateDto dto)
     {
-        DebtId = created.DebtId,
-        IsMyDebt = created.IsMyDebt,
-        InvolvedPartyName = created.InvolvedPartyName,
-        Description = created.Description,
-        TotalAmount = created.TotalAmount,
-        Installments = created.Installments,
-        InstallmentValue = created.InstallmentValue,
-        CreatedAt = created.CreatedAt,
-        DueDate = created.DueDate,
-        IsPaid = created.IsPaid
-    };
-}
+        var existing = await _debtRepository.GetByIdAsync(id, userId);
+        if (existing == null) return null;
+
+        if (!string.IsNullOrEmpty(dto.Description))
+            existing.Description = dto.Description;
+
+        existing.IsPaid = dto.IsPaid;
+
+        var updated = await _debtRepository.UpdateAsync(existing);
+        if (updated == null) return null;
+
+        return new DebtDto
+        {
+            DebtId = updated.DebtId,
+            IsMyDebt = updated.IsMyDebt,
+            InvolvedPartyName = updated.InvolvedPartyName,
+            Description = updated.Description,
+            TotalAmount = updated.TotalAmount,
+            Installments = updated.Installments,
+            InstallmentValue = updated.InstallmentValue,
+            CreatedAt = updated.CreatedAt,
+            DueDate = updated.DueDate,
+            IsPaid = updated.IsPaid,
+            UserId = updated.UserId
+        };
+    }
 
 
-   public async Task<DebtDto?> UpdateAsync(string id, DebtUpdateDto dto)
-{
-    var existing = await _debtRepository.GetByIdAsync(id);
-    if (existing == null) return null;
 
-    if (!string.IsNullOrEmpty(dto.Description))
-        existing.Description = dto.Description;
-
-    existing.IsPaid = dto.IsPaid;
-
-    var updated = await _debtRepository.UpdateAsync(existing);
-    if (updated == null) return null;
-
-    return new DebtDto
+    public async Task<bool> Delete(string id, string userId)
     {
-        DebtId = updated.DebtId,
-        IsMyDebt = updated.IsMyDebt,
-        InvolvedPartyName = updated.InvolvedPartyName,
-        Description = updated.Description,
-        TotalAmount = updated.TotalAmount,
-        Installments = updated.Installments,
-        InstallmentValue = updated.InstallmentValue,
-        CreatedAt = updated.CreatedAt,
-        DueDate = updated.DueDate,
-        IsPaid = updated.IsPaid
-    };
-}
-
-
-
-    public async Task<bool> Delete(string id)
-    {
-
-        var existing = await _debtRepository.GetByIdAsync(id);
+        var existing = await _debtRepository.GetByIdAsync(id, userId);
         if (existing == null) return false;
-      
-        var allPayments = await _paymentRepository.GetAllAsync();
-        var paymentsToDelete = allPayments.Where(p => p.DebtId == id);
-        foreach (var p in paymentsToDelete)
-        {
-            await _paymentRepository.DeleteAsync(p.PaymentId);
-        }
 
+        var paymentsToDelete = await _paymentRepository.GetAllAsync(id, userId,null);
 
-        var allInstallments = await _installmentRepository.GetAllAsync();
-        var installmentsToDelete = allInstallments.Where(i => i.DebtId == id);
-        foreach (var i in installmentsToDelete)
-        {
-            await _installmentRepository.DeleteAsync(i.InstallmentId);
-        }
+        if (paymentsToDelete.Any())
+            await _paymentRepository.DeleteManyAsync(paymentsToDelete);
 
-     
-        return await _debtRepository.DeleteAsync(id);
+        var installmentsToDelete = await _installmentRepository.GetAllAsync(id,userId);
+
+        if (installmentsToDelete.Any())
+            await _installmentRepository.DeleteManyAsync(installmentsToDelete);
+
+        return await _debtRepository.DeleteAsync(id,userId);
     }
+
+    private List<InstallmentModel> GenerateInstallments(DebtModel debt)
+    {
+        var installments = new List<InstallmentModel>();
+
+        for (int i = 1; i <= debt.Installments; i++)
+        {
+            installments.Add(new InstallmentModel
+            {
+                DebtId = debt.DebtId,
+                Number = i,
+                Amount = debt.InstallmentValue,
+                DueDate = debt.DueDate.AddMonths(i - 1),
+                UserId = debt.UserId
+            });
+        }
+
+        return installments;
+    }
+
 }
+
+

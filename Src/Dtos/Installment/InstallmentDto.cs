@@ -9,4 +9,5 @@ public class InstallmentDto
     public decimal Amount { get; set; }
     public decimal PaidAmount { get; set; }
     public bool IsPaid { get; set; }
+     public string UserId { get; set; }
 }

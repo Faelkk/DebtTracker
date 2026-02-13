@@ -13,5 +13,6 @@ namespace DebtTrack.Dtos.Payment
         [Required]
         [Range(0.01, double.MaxValue, ErrorMessage = "Amount deve ser maior que 0")]
         public decimal Amount { get; set; }
+
     }
 }

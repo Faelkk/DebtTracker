@@ -15,41 +15,27 @@ namespace DebtTrack.Repositories
         }
 
         public async Task<IEnumerable<PaymentModel>> GetAllAsync(
-    string? debtId,
-    string? installmentId
-)
+     string userId,
+     string? debtId,
+     string? installmentId)
         {
-            var conditions = new List<ScanCondition>();
+            var payments = await _context
+                .QueryAsync<PaymentModel>(userId)
+                .GetRemainingAsync();
 
             if (!string.IsNullOrEmpty(debtId))
-            {
-                conditions.Add(new ScanCondition(
-                    nameof(PaymentModel.DebtId),
-                    ScanOperator.Equal,
-                    debtId
-                ));
-            }
+                payments = payments.Where(p => p.DebtId == debtId).ToList();
 
             if (!string.IsNullOrEmpty(installmentId))
-            {
-                conditions.Add(new ScanCondition(
-                    nameof(PaymentModel.InstallmentId),
-                    ScanOperator.Equal,
-                    installmentId
-                ));
-            }
+                payments = payments.Where(p => p.InstallmentId == installmentId).ToList();
 
-            return await _context
-                .ScanAsync<PaymentModel>(conditions)
-                .GetRemainingAsync();
+            return payments;
         }
 
-
-        public async Task<PaymentModel?> GetByIdAsync(string id)
+        public async Task<PaymentModel?> GetByIdAsync(string id, string userId)
         {
-            return await _context.LoadAsync<PaymentModel>(id);
+            return await _context.LoadAsync<PaymentModel>(userId, id);
         }
-
         public async Task<PaymentModel> CreateAsync(PaymentModel payment)
         {
             await _context.SaveAsync(payment);
@@ -57,13 +43,32 @@ namespace DebtTrack.Repositories
         }
 
 
-        public async Task<bool> DeleteAsync(string id)
+        public async Task<bool> DeleteAsync(string id, string userId)
         {
-            var existing = await _context.LoadAsync<PaymentModel>(id);
-            if (existing == null) return false;
+            var existing = await _context.LoadAsync<PaymentModel>(userId, id);
+            if (existing == null)
+                return false;
 
             await _context.DeleteAsync(existing);
             return true;
         }
+
+
+        public async Task DeleteManyAsync(IEnumerable<PaymentModel> payments)
+        {
+            var batch = _context.CreateBatchWrite<PaymentModel>();
+
+            foreach (var payment in payments)
+            {
+                batch.AddDeleteItem(payment);
+            }
+
+            await batch.ExecuteAsync();
+        }
+
     }
+
 }
+
+
+

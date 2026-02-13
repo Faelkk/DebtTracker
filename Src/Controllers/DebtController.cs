@@ -2,6 +2,7 @@
 using DebtTrack.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using DebtTrack.Shared;
 
 namespace DebtTrack.Controllers;
 
@@ -16,14 +17,19 @@ public class DebtController : ControllerBase
         _debtService = debtService;
     }
 
-    
+
     [Authorize]
     [HttpGet]
     public async Task<IActionResult> Get()
     {
         try
         {
-            var debts = await _debtService.GetAllAsync();
+          var userId = User.GetUserId();
+        if (string.IsNullOrEmpty(userId))
+            return BadRequest("Usuário não autenticado.");
+
+            var debts = await _debtService.GetAllAsync(userId!);
+
             return Ok(debts);
         }
         catch (Exception ex)
@@ -32,30 +38,43 @@ public class DebtController : ControllerBase
         }
     }
 
+
     [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(string id)
     {
-        try
-        {
-            var debt = await _debtService.GetByIdAsync(id);
-            if (debt == null)
-                return NotFound("Dívida não encontrada");
+       var userId = User.GetUserId();
+        if (string.IsNullOrEmpty(userId))
+            return BadRequest("Usuário não autenticado.");
 
-            return Ok(debt);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
+        if (string.IsNullOrEmpty(id))
+            return BadRequest("DebtId é obrigatório.");
+
+        var debt = await _debtService.GetByIdAsync(id, userId);
+
+        if (debt == null)
+            return NotFound("Dívida não encontrada");
+
+        return Ok(debt);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] DebtCreateDto debtCreateDto)
     {
         try
         {
-            var createdDebt = await _debtService.CreateAsync(debtCreateDto);
+             var userId = User.GetUserId();
+        if (string.IsNullOrEmpty(userId))
+            return BadRequest("Usuário não autenticado.");
+
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+
+            Console.WriteLine($"UserId in controller: {userId}");
+
+            var createdDebt = await _debtService.CreateAsync(debtCreateDto, userId!);
             return CreatedAtAction(nameof(GetById), new { id = createdDebt.DebtId }, createdDebt);
         }
         catch (Exception ex)
@@ -64,12 +83,23 @@ public class DebtController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpPatch("{id}")]
     public async Task<IActionResult> Patch(string id, [FromBody] DebtUpdateDto debtUpdateDto)
     {
         try
         {
-            var updatedDebt = await _debtService.UpdateAsync(id, debtUpdateDto);
+            var userId = User.GetUserId();
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest("Usuário não autenticado.");
+
+            if (string.IsNullOrEmpty(id))
+                return BadRequest("DebtId é obrigatório.");
+
+
+
+
+            var updatedDebt = await _debtService.UpdateAsync(id, userId!, debtUpdateDto);
             if (updatedDebt == null)
                 return NotFound("Dívida não encontrada");
 
@@ -81,12 +111,21 @@ public class DebtController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(string id)
     {
         try
         {
-            var deleted = await _debtService.Delete(id);
+            var userId = User.GetUserId();
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest("Usuário não autenticado.");
+
+            if (string.IsNullOrEmpty(id))
+                return BadRequest("DebtId é obrigatório.");
+
+
+            var deleted = await _debtService.Delete(id, userId);
             if (!deleted)
                 return NotFound("Dívida não encontrada");
 

@@ -5,14 +5,17 @@ namespace DebtTrack.Models;
 [DynamoDBTable("Payments")]
 public class PaymentModel
 {
-    [DynamoDBHashKey] // Partition Key
+    [DynamoDBHashKey]
+    public string UserId { get; set; } = default!;
+
+    [DynamoDBRangeKey]
     public string PaymentId { get; set; } = Guid.NewGuid().ToString();
 
     [DynamoDBProperty]
-    public string DebtId { get; set; }
+    public string DebtId { get; set; } = default!;
 
     [DynamoDBProperty]
-    public string InstallmentId { get; set; } 
+    public string InstallmentId { get; set; } = default!;
 
     [DynamoDBProperty]
     public decimal Amount { get; set; }

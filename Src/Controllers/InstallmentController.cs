@@ -1,4 +1,5 @@
 ﻿using DebtTrack.Interfaces;
+using DebtTrack.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,10 +20,13 @@ public class InstallmentController : ControllerBase
    [Authorize]
 [HttpGet]
 public async Task<IActionResult> Get([FromQuery] string? debtId)
+
 {
     try
     {
-        var installments = await _installmentService.GetAllAsync(debtId);
+
+        var userId = User.GetUserId();
+        var installments = await _installmentService.GetAllAsync(debtId, userId!);
         return Ok(installments);
     }
     catch (Exception ex)
@@ -40,7 +44,9 @@ public async Task<IActionResult> Get([FromQuery] string? debtId)
     {
         try
         {
-            var installment = await _installmentService.GetByIdAsync(id);
+
+            var userId = User.GetUserId();
+            var installment = await _installmentService.GetByIdAsync(id,userId!);
             if (installment == null)
                 return NotFound("Emprestimo não encontrado");
 

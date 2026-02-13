@@ -17,9 +17,9 @@ public class InstallmentService : IInstallmentService
         _paymentRepository = paymentRepository;
     }
 
-    public async Task<IEnumerable<InstallmentDto>> GetAllAsync(string? debtId)
+    public async Task<IEnumerable<InstallmentDto>> GetAllAsync(string? debtId, string userId)
 {
-    var models = await _repository.GetAllAsync(debtId);
+    var models = await _repository.GetAllAsync(debtId, userId);
 
     return models.Select(m => new InstallmentDto
     {
@@ -29,14 +29,16 @@ public class InstallmentService : IInstallmentService
         DueDate = m.DueDate,
         Amount = m.Amount,
         PaidAmount = m.PaidAmount,
-        IsPaid = m.IsPaid
+        IsPaid = m.IsPaid,
+        UserId = m.UserId
+        
     });
 }
 
 
-    public async Task<InstallmentDto?> GetByIdAsync(string id)
+    public async Task<InstallmentDto?> GetByIdAsync(string id, string userId)
     {
-        var model = await _repository.GetByIdAsync(id);
+        var model = await _repository.GetByIdAsync(id, userId);
         if (model == null) return null;
 
         return new InstallmentDto
@@ -47,7 +49,8 @@ public class InstallmentService : IInstallmentService
             DueDate = model.DueDate,
             Amount = model.Amount,
             PaidAmount = model.PaidAmount,
-            IsPaid = model.IsPaid
+            IsPaid = model.IsPaid,
+            UserId = model.UserId
         };
     }
 
@@ -58,7 +61,9 @@ public class InstallmentService : IInstallmentService
             DebtId = dto.DebtId,
             Number = dto.Number,
             DueDate = dto.DueDate,
-            Amount = dto.Amount
+            Amount = dto.Amount,
+            UserId = dto.UserId
+
         };
 
         var created = await _repository.CreateAsync(model);
@@ -75,9 +80,9 @@ public class InstallmentService : IInstallmentService
         };
     }
 
-    public async Task<InstallmentDto?> UpdateAsync(string id, InstallmentUpdateDto dto)
+    public async Task<InstallmentDto?> UpdateAsync(string id, string userId, InstallmentUpdateDto dto)
     {
-        var existing = await _repository.GetByIdAsync(id);
+        var existing = await _repository.GetByIdAsync(id, userId);
         if (existing == null) return null;
         
         existing.Amount = dto.Amount;
@@ -94,24 +99,23 @@ public class InstallmentService : IInstallmentService
             DueDate = updated.DueDate,
             Amount = updated.Amount,
             PaidAmount = updated.PaidAmount,
-            IsPaid = updated.IsPaid
+            IsPaid = updated.IsPaid,
+            UserId = updated.UserId
         };
     }
 
-    public async Task<bool> DeleteAsync(string id)
+    public async Task<bool> DeleteAsync(string id, string userId)
     {
-        var existing = await _repository.GetByIdAsync(id);
+        var existing = await _repository.GetByIdAsync(id, userId);
         if (existing == null) return false;
         
-        var allPayments = await _paymentRepository.GetAllAsync();
-        var paymentsToDelete = allPayments.Where(p => p.InstallmentId == id);
-        
-        foreach (var payment in paymentsToDelete)
-        {
-            await _paymentRepository.DeleteAsync(payment.PaymentId);
-        }
+       var paymentsToDelete = await _paymentRepository.GetAllAsync(userId, id,null);
+
+       await _paymentRepository.DeleteManyAsync(paymentsToDelete);
 
 
-        return await _repository.DeleteAsync(id);
+        return await _repository.DeleteAsync(id,userId);
     }
 }
+
+

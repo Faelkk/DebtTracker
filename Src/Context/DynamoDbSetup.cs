@@ -16,6 +16,7 @@ namespace DebtTrack.Setup
         {
             var tables = new List<CreateTableRequest>
             {
+     
                 new CreateTableRequest
                 {
                     TableName = "Users",
@@ -29,42 +30,54 @@ namespace DebtTrack.Setup
                     },
                     BillingMode = BillingMode.PAY_PER_REQUEST
                 },
+
+       
                 new CreateTableRequest
                 {
                     TableName = "Debts",
                     AttributeDefinitions = new List<AttributeDefinition>
                     {
-                        new AttributeDefinition("DebtId", ScalarAttributeType.S)
+                        new AttributeDefinition("UserId", ScalarAttributeType.S),   
+                        new AttributeDefinition("DebtId", ScalarAttributeType.S)   
                     },
                     KeySchema = new List<KeySchemaElement>
                     {
-                        new KeySchemaElement("DebtId", KeyType.HASH)
+                        new KeySchemaElement("UserId", KeyType.HASH),
+                        new KeySchemaElement("DebtId", KeyType.RANGE)
                     },
                     BillingMode = BillingMode.PAY_PER_REQUEST
                 },
+
+        
                 new CreateTableRequest
                 {
                     TableName = "Installments",
                     AttributeDefinitions = new List<AttributeDefinition>
                     {
-                        new AttributeDefinition("InstallmentId", ScalarAttributeType.S)
+                        new AttributeDefinition("UserId", ScalarAttributeType.S),          
+                        new AttributeDefinition("InstallmentId", ScalarAttributeType.S)     
                     },
                     KeySchema = new List<KeySchemaElement>
                     {
-                        new KeySchemaElement("InstallmentId", KeyType.HASH)
+                        new KeySchemaElement("UserId", KeyType.HASH),
+                        new KeySchemaElement("InstallmentId", KeyType.RANGE)
                     },
                     BillingMode = BillingMode.PAY_PER_REQUEST
                 },
+
+
                 new CreateTableRequest
                 {
                     TableName = "Payments",
                     AttributeDefinitions = new List<AttributeDefinition>
                     {
-                        new AttributeDefinition("PaymentId", ScalarAttributeType.S)
+                        new AttributeDefinition("UserId", ScalarAttributeType.S),  
+                        new AttributeDefinition("PaymentId", ScalarAttributeType.S) 
                     },
                     KeySchema = new List<KeySchemaElement>
                     {
-                        new KeySchemaElement("PaymentId", KeyType.HASH)
+                        new KeySchemaElement("UserId", KeyType.HASH),
+                        new KeySchemaElement("PaymentId", KeyType.RANGE)
                     },
                     BillingMode = BillingMode.PAY_PER_REQUEST
                 }
@@ -91,5 +104,34 @@ namespace DebtTrack.Setup
                 }
             }
         }
+
+
+        public async Task DropTablesAsync()
+{
+    var tableNames = new[] { "Debts", "Installments", "Payments" };
+
+    foreach (var tableName in tableNames)
+    {
+        try
+        {
+            var existing = await _client.ListTablesAsync();
+            if (existing.TableNames.Contains(tableName))
+            {
+                await _client.DeleteTableAsync(tableName);
+                Console.WriteLine($"🗑️ Tabela '{tableName}' deletada com sucesso!");
+            }
+            else
+            {
+                Console.WriteLine($"⚠️ Tabela '{tableName}' não existe, nada a deletar.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Erro ao deletar {tableName}: {ex.Message}");
+        }
     }
+}
+
+    }
+    
 }

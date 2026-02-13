@@ -5,17 +5,20 @@ namespace DebtTrack.Models;
 [DynamoDBTable("Debts")]
 public class DebtModel
 {
-    [DynamoDBHashKey] 
+    [DynamoDBHashKey]
+    public string UserId { get; set; } = default!;
+
+    [DynamoDBRangeKey]
     public string DebtId { get; set; } = Guid.NewGuid().ToString();
-    
+
     [DynamoDBProperty]
     public bool IsMyDebt { get; set; }
 
     [DynamoDBProperty]
-    public string InvolvedPartyName { get; set; }
+    public string InvolvedPartyName { get; set; } = default!;
 
     [DynamoDBProperty]
-    public string Description { get; set; }
+    public string Description { get; set; } = default!;
 
     [DynamoDBProperty]
     public decimal TotalAmount { get; set; }
@@ -32,7 +35,9 @@ public class DebtModel
     [DynamoDBProperty]
     public DateTime DueDate { get; set; }
 
-    
     [DynamoDBProperty]
     public bool IsPaid { get; set; } = false;
 }
+
+
+

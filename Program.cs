@@ -32,8 +32,15 @@ builder.Services.AddSingleton<IAmazonDynamoDB>(sp =>
 );
 
 builder.Services.AddScoped<IDynamoDBContext>(sp =>
-    new DynamoDBContext(sp.GetRequiredService<IAmazonDynamoDB>())
-);
+{
+    var client = sp.GetRequiredService<IAmazonDynamoDB>();
+
+    return new DynamoDBContextBuilder()
+        .WithDynamoDBClient(() => client)
+        .Build();
+});
+
+
 
 builder.Services.AddScoped<DynamoDbSetup>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -98,6 +105,17 @@ builder.Services.AddOpenApi(options =>
     });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 
 var port = builder.Configuration["APIPORT"] ?? "5010";
 builder.WebHost.UseUrls($"http://*:{port}");
@@ -108,8 +126,15 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var setup = scope.ServiceProvider.GetRequiredService<DynamoDbSetup>();
+    
+    // Deleta tabelas antigas
+    await setup.DropTablesAsync();
+
+    // Cria tabelas novas
     await setup.CreateTablesAsync();
 }
+
+
 
 
 app.MapOpenApi();
@@ -120,6 +145,7 @@ app.MapScalarApiReference(options =>
 });
 
 app.UseHttpsRedirection();
+app.UseCors("CorsPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

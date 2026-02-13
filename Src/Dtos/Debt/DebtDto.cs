@@ -16,4 +16,6 @@ public class DebtDto
     public DateTime DueDate { get; set; }
 
     public bool IsPaid { get; set; }
+
+    public string UserId { get; set; }
 }

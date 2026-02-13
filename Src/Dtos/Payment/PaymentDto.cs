@@ -7,4 +7,6 @@ public class PaymentDto
     public string InstallmentId { get; set; }
     public decimal Amount { get; set; }
     public DateTime PaidAt { get; set; }
+
+     public string UserId { get; set; }
 }
