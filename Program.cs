@@ -127,8 +127,6 @@ using (var scope = app.Services.CreateScope())
 {
     var setup = scope.ServiceProvider.GetRequiredService<DynamoDbSetup>();
     
-    // Deleta tabelas antigas
-    await setup.DropTablesAsync();
 
     // Cria tabelas novas
     await setup.CreateTablesAsync();

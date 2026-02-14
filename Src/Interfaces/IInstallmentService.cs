@@ -4,7 +4,7 @@ namespace DebtTrack.Interfaces;
 
 public interface IInstallmentService
 {
-    Task<IEnumerable<InstallmentDto>> GetAllAsync(string? debtId, string userId);
+    Task<IEnumerable<InstallmentDto>> GetAllAsync(string debtId, string userId);
 
     Task<InstallmentDto?> GetByIdAsync(string id, string userId);
     Task<InstallmentDto> CreateAsync(InstallmentCreateDto dto);

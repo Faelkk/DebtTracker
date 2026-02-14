@@ -19,29 +19,32 @@ public class PaymentService : IPaymentService
         _debtRepository = debtRepository;
     }
 
-    public async Task<IEnumerable<PaymentDto>> GetAllAsync(
-string userId,
-string? debtId,
-string? installmentId
+public async Task<IEnumerable<PaymentDto>> GetAllAsync(
+    string userId,
+    string debtId,
+    string installmentId
 )
+{
+    var payments = await _paymentRepository.GetAllAsync(userId, debtId, installmentId);
+
+
+    Console.WriteLine($"Service Payments Count: {payments.Count()} for UserId: {userId}, DebtId: {debtId}, InstallmentId: {installmentId}"); // Debug log
+
+    return payments.Select(p => new PaymentDto
     {
-        var payments = await _paymentRepository.GetAllAsync(userId, debtId, installmentId);
+        PaymentId = p.PaymentId,
+        DebtId = p.DebtId,
+        InstallmentId = p.InstallmentId,
+        Amount = p.Amount,
+        PaidAt = p.PaidAt,
+        UserId = p.UserId,
+    });
+}
 
-        return payments.Select(p => new PaymentDto
-        {
-            PaymentId = p.PaymentId,
-            DebtId = p.DebtId,
-            InstallmentId = p.InstallmentId,
-            Amount = p.Amount,
-            PaidAt = p.PaidAt,
-            UserId = p.UserId
 
-        });
-    }
-
-    public async Task<PaymentDto?> GetByIdAsync(string id,string userId)
+    public async Task<PaymentDto?> GetByIdAsync(string id,string userId,string debtId, string installmentId)
     {
-        var payment = await _paymentRepository.GetByIdAsync(id,userId);
+        var payment = await _paymentRepository.GetByIdAsync(id,userId,debtId,installmentId);
         if (payment == null) return null;
 
         return new PaymentDto
@@ -101,7 +104,7 @@ string? installmentId
   public async Task<bool> Delete(string id, string userId)
 {
     
-    var payment = await _paymentRepository.GetByIdAsync(id, userId);
+    var payment = await _paymentRepository.GetByIdAsync(id, userId,null,null);
     if (payment == null)
         return false;
 

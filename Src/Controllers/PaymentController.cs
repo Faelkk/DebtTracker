@@ -19,10 +19,15 @@ public class PaymentController : ControllerBase
 
     [Authorize]
     [HttpGet]
-    public async Task<IActionResult> Get([FromQuery] string? debtId, [FromQuery] string? installmentId)
+    public async Task<IActionResult> Get([FromQuery] string debtId, [FromQuery] string installmentId)
     {
         try
         {
+
+            if(string.IsNullOrEmpty(debtId) && string.IsNullOrEmpty(installmentId))
+                return BadRequest(new { message = "At least one of debtId or installmentId must be provided." });
+            
+
             var userId = User.GetUserId();
             var payments = await _paymentService.GetAllAsync(userId, debtId, installmentId);
             return Ok(payments);
@@ -35,12 +40,16 @@ public class PaymentController : ControllerBase
 
     [Authorize]
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(string id)
+    public async Task<IActionResult> GetById(string id,[FromQuery] string debtId, [FromQuery] string installmentId)
     {
         try
         {
+
+               if(string.IsNullOrEmpty(debtId) && string.IsNullOrEmpty(installmentId))
+                return BadRequest(new { message = "At least one of debtId or installmentId must be provided." });
+            
             var userId = User.GetUserId();
-            var payment = await _paymentService.GetByIdAsync(id, userId);
+            var payment = await _paymentService.GetByIdAsync(id, userId, debtId, installmentId);
             if (payment == null) return NotFound(new { message = "Payment not found" });
             return Ok(payment);
         }

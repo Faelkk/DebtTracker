@@ -106,32 +106,7 @@ namespace DebtTrack.Setup
         }
 
 
-        public async Task DropTablesAsync()
-{
-    var tableNames = new[] { "Debts", "Installments", "Payments" };
-
-    foreach (var tableName in tableNames)
-    {
-        try
-        {
-            var existing = await _client.ListTablesAsync();
-            if (existing.TableNames.Contains(tableName))
-            {
-                await _client.DeleteTableAsync(tableName);
-                Console.WriteLine($"🗑️ Tabela '{tableName}' deletada com sucesso!");
-            }
-            else
-            {
-                Console.WriteLine($"⚠️ Tabela '{tableName}' não existe, nada a deletar.");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"❌ Erro ao deletar {tableName}: {ex.Message}");
-        }
-    }
-}
-
+       
     }
     
 }

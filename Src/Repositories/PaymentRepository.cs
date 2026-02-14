@@ -23,6 +23,10 @@ namespace DebtTrack.Repositories
                 .QueryAsync<PaymentModel>(userId)
                 .GetRemainingAsync();
 
+    Console.WriteLine($"Repository Payments Count: {payments.Count()} for UserId: {userId}, DebtId: {debtId}, InstallmentId: {installmentId}"); // Debug log
+
+        Console.WriteLine("Entrou aqui");
+
             if (!string.IsNullOrEmpty(debtId))
                 payments = payments.Where(p => p.DebtId == debtId).ToList();
 
@@ -32,10 +36,28 @@ namespace DebtTrack.Repositories
             return payments;
         }
 
-        public async Task<PaymentModel?> GetByIdAsync(string id, string userId)
+        public async Task<PaymentModel?> GetByIdAsync(
+    string id,
+    string userId,
+    string? debtId,
+    string? installmentId)
         {
-            return await _context.LoadAsync<PaymentModel>(userId, id);
+            var payment = await _context.LoadAsync<PaymentModel>(userId, id);
+
+
+
+            if (payment == null)
+                return null;
+
+            if (!string.IsNullOrEmpty(debtId) && payment.DebtId != debtId)
+                return null;
+
+            if (!string.IsNullOrEmpty(installmentId) && payment.InstallmentId != installmentId)
+                return null;
+
+            return payment;
         }
+
         public async Task<PaymentModel> CreateAsync(PaymentModel payment)
         {
             await _context.SaveAsync(payment);

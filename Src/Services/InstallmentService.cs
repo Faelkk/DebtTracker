@@ -17,7 +17,7 @@ public class InstallmentService : IInstallmentService
         _paymentRepository = paymentRepository;
     }
 
-    public async Task<IEnumerable<InstallmentDto>> GetAllAsync(string? debtId, string userId)
+    public async Task<IEnumerable<InstallmentDto>> GetAllAsync(string debtId, string userId)
 {
     var models = await _repository.GetAllAsync(debtId, userId);
 

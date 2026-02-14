@@ -14,20 +14,17 @@ public class InstallmentRepository : IInstallmentRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<InstallmentModel>> GetAllAsync(string? debtId, string userId
-   )
-    {
-        var installments = await _context
-            .QueryAsync<InstallmentModel>(userId)
-            .GetRemainingAsync();
+    public async Task<IEnumerable<InstallmentModel>> GetAllAsync(string debtId, string userId)
+{
+    var installments = await _context
+        .QueryAsync<InstallmentModel>(userId)
+        .GetRemainingAsync();
 
-        if (!string.IsNullOrEmpty(debtId))
-            installments = installments
-                .Where(i => i.DebtId == debtId)
-                .ToList();
+    return installments
+        .Where(i => i.DebtId == debtId)
+        .ToList();
+}
 
-        return installments;
-    }
 
 
     public async Task<InstallmentModel?> GetByIdAsync(string id, string userId)

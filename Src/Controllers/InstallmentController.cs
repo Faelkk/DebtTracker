@@ -1,4 +1,5 @@
-﻿using DebtTrack.Interfaces;
+﻿using System.ComponentModel.DataAnnotations;
+using DebtTrack.Interfaces;
 using DebtTrack.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ public class InstallmentController : ControllerBase
 
    [Authorize]
 [HttpGet]
-public async Task<IActionResult> Get([FromQuery] string? debtId)
+public async Task<IActionResult> Get([FromQuery][Required] string? debtId)
 
 {
     try
