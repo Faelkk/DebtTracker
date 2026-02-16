@@ -5,9 +5,14 @@ public class DebtCreateDto
     [Required]
     public bool IsMyDebt { get; set; }
 
-    [Required(ErrorMessage = "Informe o nome da pessoa envolvida")]
-    [StringLength(100, ErrorMessage = "O nome pode ter no máximo 100 caracteres")]
-    public string InvolvedPartyName { get; set; }
+    [Required(ErrorMessage = "Informe o nome do devedor")]
+    [StringLength(100, ErrorMessage = "O nome do devedor pode ter no máximo 100 caracteres")]
+    public string DebtorName { get; set; }
+
+
+     [Required(ErrorMessage = "Informe o nome do credetor")]
+    [StringLength(100, ErrorMessage = "O nome do credetor pode ter no máximo 100 caracteres")]
+    public string CreditorName { get; set; }
 
     [Required(ErrorMessage = "Descrição é obrigatória")]
     public string Description { get; set; }

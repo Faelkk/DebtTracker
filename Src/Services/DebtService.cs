@@ -29,7 +29,8 @@ public class DebtService : IDebtService
     {
         DebtId = d.DebtId,
         IsMyDebt = d.IsMyDebt,
-        InvolvedPartyName = d.InvolvedPartyName,
+        CreditorName = d.CreditorName,
+        DebtorName = d.DebtorName,
         Description = d.Description,
         TotalAmount = d.TotalAmount,
         Installments = d.Installments,
@@ -52,7 +53,8 @@ public class DebtService : IDebtService
         {
             DebtId = debt.DebtId,
             IsMyDebt = debt.IsMyDebt,
-            InvolvedPartyName = debt.InvolvedPartyName,
+            CreditorName = debt.CreditorName,
+            DebtorName = debt.DebtorName,
             Description = debt.Description,
             TotalAmount = debt.TotalAmount,
             Installments = debt.Installments,
@@ -72,7 +74,8 @@ public class DebtService : IDebtService
         var model = new DebtModel
         {
             IsMyDebt = dto.IsMyDebt,
-            InvolvedPartyName = dto.InvolvedPartyName,
+            CreditorName = dto.CreditorName,
+            DebtorName = dto.DebtorName,
             Description = dto.Description,
             TotalAmount = dto.TotalAmount,
             Installments = dto.Installments,
@@ -97,7 +100,8 @@ public class DebtService : IDebtService
         {
             DebtId = created.DebtId,
             IsMyDebt = created.IsMyDebt,
-            InvolvedPartyName = created.InvolvedPartyName,
+            CreditorName = created.CreditorName,
+            DebtorName = created.DebtorName,
             Description = created.Description,
             TotalAmount = created.TotalAmount,
             Installments = created.Installments,
@@ -127,7 +131,8 @@ public class DebtService : IDebtService
         {
             DebtId = updated.DebtId,
             IsMyDebt = updated.IsMyDebt,
-            InvolvedPartyName = updated.InvolvedPartyName,
+            CreditorName = updated.CreditorName,
+            DebtorName = updated.DebtorName,
             Description = updated.Description,
             TotalAmount = updated.TotalAmount,
             Installments = updated.Installments,

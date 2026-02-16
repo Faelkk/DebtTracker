@@ -128,7 +128,6 @@ using (var scope = app.Services.CreateScope())
     var setup = scope.ServiceProvider.GetRequiredService<DynamoDbSetup>();
     
 
-    // Cria tabelas novas
     await setup.CreateTablesAsync();
 }
 
@@ -138,7 +137,7 @@ using (var scope = app.Services.CreateScope())
 app.MapOpenApi();
 app.MapScalarApiReference(options =>
 {
-    options.WithTitle("Newsletter API")
+    options.WithTitle("DebtTracker API")
         .WithTheme(ScalarTheme.Mars);
 });
 

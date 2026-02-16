@@ -6,7 +6,9 @@ public class DebtDto
 
     public bool IsMyDebt { get; set; }
 
-     public string InvolvedPartyName { get; set; }
+     public string DebtorName { get; set; }
+
+     public string CreditorName { get; set; }
 
     public string Description { get; set; }
     public decimal TotalAmount { get; set; }

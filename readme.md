@@ -26,6 +26,9 @@ Api Documentada com scalar acesse  http://localhost:5010/scalar
 - [Docker](https://www.docker.com/)
 
 
+
+
+
 ##  🚀 Como Rodar o Projeto
 
 Para rodar o projeto em seu ambiente local, siga os passos abaixo:

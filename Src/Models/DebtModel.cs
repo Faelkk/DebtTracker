@@ -14,8 +14,11 @@ public class DebtModel
     [DynamoDBProperty]
     public bool IsMyDebt { get; set; }
 
+     [DynamoDBProperty]
+    public string DebtorName { get; set; } = default!;
+
     [DynamoDBProperty]
-    public string InvolvedPartyName { get; set; } = default!;
+    public string CreditorName { get; set; } = default!;
 
     [DynamoDBProperty]
     public string Description { get; set; } = default!;
